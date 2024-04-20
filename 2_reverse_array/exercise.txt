@@ -1,0 +1,5 @@
+Implement a CUDA kernel to reverse an array. That is:
+
+output[i] = input[N - 1 - i]
+
+where N is the array size, i is the index from 0 to N - 1.
