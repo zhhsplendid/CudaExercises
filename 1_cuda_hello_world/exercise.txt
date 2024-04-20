@@ -1,0 +1,15 @@
+Implement a cuda kernel prints
+
+"Hello world from GPU xxx"
+
+from each thread, the xxx can be an ID to distinguish each thread.
+
+Launch it with multi block and multi thread, for example, 10 * 10
+
+Note:
+To print it on console, you may need some synchronization on CPU,
+otherwise you cannot see the strings on your console.  
+
+Label:
+basic CUDA block/thread index
+synchronization
