@@ -1,0 +1,3 @@
+Implement a CUDA kernel sgemm, that is using float to calculate matmul
+
+The basic implementation can be naive, while the advanced implementation should tile and utilize shared memory
