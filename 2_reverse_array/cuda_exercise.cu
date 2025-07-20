@@ -38,11 +38,13 @@ int main() {
 
   int* out = new int[N];
   cudaMemcpy(out, dev_out, size, cudaMemcpyDeviceToHost);
-
+  cudaDeviceSynchronize();
   for (int i = 0; i < N; ++i) {
     printf("%d ", out[i]);
   }
   printf("\n");
 
+  delete host_a;
+  delete out;
   return 0;
 }

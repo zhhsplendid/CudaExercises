@@ -26,7 +26,7 @@ void cpuMatmul(const float *__restrict__ A, const float *__restrict__ B,
   auto duration =
       std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-  printf("Cpu matmul takes %d milliseconds\n", duration.count());
+  printf("Cpu matmul takes %ld milliseconds\n", duration.count());
 }
 
 __global__ void naiveMatmulKernel(const float *__restrict__ A,
@@ -385,9 +385,9 @@ int main() {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<float> dist(-100.0f, 100.0f);
-  const int M = 2048;
-  const int K = 2048;
-  const int N = 2048;
+  const int M = 1024;
+  const int K = 64;
+  const int N = 1024;
   float *A = new float[M * K];
   float *B = new float[K * N];
   for (int i = 0; i < M * K; ++i) {
@@ -412,5 +412,10 @@ int main() {
   subMtxMatmul(A, B, opt_C, M, K, N, "subMtxMinorOpt");
   checkEqual(naive_C, opt_C, M, N);
 
+  delete[] A;
+  delete[] B;
+  delete[] cpu_C;
+  delete[] naive_C;
+  delete[] opt_C;
   return 0;
 }
