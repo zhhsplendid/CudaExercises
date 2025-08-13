@@ -1,0 +1,8 @@
+Implement a CUDA kernel softmax using threadIdx as iterator with type template
+
+formula:
+
+softmax(x)[i][j] = e ^ x[i][j] / sum( e ^ x[i][k] for k in range(len(x[i])))
+
+Note:
+To avoid overflow, the implementation usually subtract max(x[i]) when calculate power.

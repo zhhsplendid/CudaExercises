@@ -6,42 +6,12 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-const int M = 512;
+const int M = 2048;
 
-// Out = Softmax(X) where the length is M
-template <typename T>
-void cpuSoftmax(const T *__restrict__ X, T *__restrict__ Out, int M) {
-  if (M <= 0) {
-    return;
-  }
-
-  auto start = std::chrono::high_resolution_clock::now();
-  T x_max = X[0];
-  for (int i = 1; i < M; ++i) {
-    x_max = max(X[i], x_max);
-  }
-  //printf("cpu x_max = %f\n", x_max);
-
-  T e_sum = 0;
-  for (int i = 0; i < M; ++i) {
-    Out[i] = exp(X[i] - x_max);
-    e_sum += Out[i];
-  }
-  //printf("cpu e_sum = %f\n", e_sum);
-
-  for (int i = 0; i < M; ++i) {
-    Out[i] /= e_sum;
-  }
-
-  auto end = std::chrono::high_resolution_clock::now();
-  auto duration =
-      std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-
-  printf("Cpu softmax takes %ld milliseconds\n", duration.count());
-}
 
 const int OP_REDUCE_SUM = 0;
 const int OP_REDUCE_MAX = 1;
+
 // OpCode = 0 -> ReduceSum
 // OpCode = 1 -> ReduceMax
 // Store result in values[0], tid must be greater than len
@@ -108,9 +78,9 @@ __global__ void softmaxKernel(const T *__restrict__ X, T *__restrict__ Out,
     __syncthreads();
     //printf("tid = %d, Out[tid] = %f\n", tid, Out[tid]);
     T e_sum = blockReduce<T, OP_REDUCE_SUM>(Out, M);
-    if (tid == 0) {
+    //if (tid == 0) {
       //printf("cuda e_sum = %f\n", e_sum);
-    }
+    //}
     __syncthreads();
 
     Out[tid] = Out[tid] / e_sum;
@@ -143,6 +113,38 @@ void cudaSoftmax(const T *__restrict__ X, T *__restrict__ Out, int M) {
   float mill_sec;
   cudaEventElapsedTime(&mill_sec, start, end);
   printf("Cuda Softmax takes %f milliseconds\n", mill_sec);
+}
+
+// Out = Softmax(X) where the length is M
+template <typename T>
+void cpuSoftmax(const T *__restrict__ X, T *__restrict__ Out, int M) {
+  if (M <= 0) {
+    return;
+  }
+
+  auto start = std::chrono::high_resolution_clock::now();
+  T x_max = X[0];
+  for (int i = 1; i < M; ++i) {
+    x_max = max(X[i], x_max);
+  }
+  //printf("cpu x_max = %f\n", x_max);
+
+  T e_sum = 0;
+  for (int i = 0; i < M; ++i) {
+    Out[i] = exp(X[i] - x_max);
+    e_sum += Out[i];
+  }
+  //printf("cpu e_sum = %f\n", e_sum);
+
+  for (int i = 0; i < M; ++i) {
+    Out[i] /= e_sum;
+  }
+
+  auto end = std::chrono::high_resolution_clock::now();
+  auto duration =
+      std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+  printf("Cpu softmax takes %ld milliseconds\n", duration.count());
 }
 
 bool checkEqual(const float *in1, const float *in2, int M) {
